@@ -1,0 +1,158 @@
+#!/bin/bash
+
+gnuplot << END
+
+set terminal postscript enhanced eps color font 'Times-Roman, 25' size 4, 4.2
+set output "symmetric_trajectory.eps"
+
+unset border
+
+set lmargin 0
+set rmargin 1
+set bmargin 0
+set tmargin 4.2
+
+set label "{/Symbol e} = 0.05" at screen 0.5, screen 0.9 center
+
+N = 500
+sigma = 2
+m = 0
+s = 1
+
+full_ave = 0.946468
+
+q0_full = (full_ave * N * s * s + m * sigma * sigma) / (sigma * sigma + N * s * s)
+tau_full = sqrt( sigma * sigma * s * s / (sigma * sigma + 1.0 * N * s * s) )
+
+E = 3
+delta = sqrt(2 * E)
+
+epsilon = 0.05
+C = sqrt(1 - 0.25 * epsilon * epsilon)
+
+set xrange [-4:7]
+unset xtics
+
+set yrange [-60:60]
+unset ytics
+
+set parametric
+
+set trange [0: 2 * pi]
+
+set arrow from first -4, first 0 to first 6, first 0 nohead lw 3 lc rgb '#CCCCCC'
+set arrow from first 0, first -50 to first 0, first 60 nohead lw 3 lc rgb '#CCCCCC'
+
+set label "q" at first 6.4, 0 center tc rgb '#CCCCCC'
+set label "p" at first 0, -52 center tc rgb '#CCCCCC'
+
+plot \
+q0_full + delta * cos(t), delta * sin(t) / tau_full with lines lt 1 lc rgb '#8F278F' lw 6 title "Exact Level Set", \
+'small_batch_sym_trajectory.dat' using 1:2 with points pt 7 lc rgb 'black' title "Numerical Trajectory"
+
+END
+
+gnuplot << END
+
+set terminal postscript enhanced eps color font 'Times-Roman, 25' size 4, 4.2
+set output "symmetric_level_set.eps"
+
+unset border
+
+set lmargin 0
+set rmargin 1
+set bmargin 0
+set tmargin 4.2
+
+set label "{/Symbol e} = 0.05" at screen 0.5, screen 0.9 center
+
+N = 500
+sigma = 2
+m = 0
+s = 1
+
+full_ave = 0.946468
+
+q0_full = (full_ave * N * s * s + m * sigma * sigma) / (sigma * sigma + N * s * s)
+tau_full = sqrt( sigma * sigma * s * s / (sigma * sigma + 1.0 * N * s * s) )
+
+E = 3
+delta = sqrt(2 * E)
+
+epsilon = 0.05
+C = sqrt(1 - 0.25 * epsilon * epsilon)
+
+set xrange [-4:7]
+unset xtics
+
+set yrange [-60:60]
+unset ytics
+
+set parametric
+
+set trange [0: 2 * pi]
+
+set arrow from first -4, first 0 to first 6, first 0 nohead lw 3 lc rgb '#CCCCCC'
+set arrow from first 0, first -50 to first 0, first 60 nohead lw 3 lc rgb '#CCCCCC'
+
+set label "q" at first 6.4, 0 center tc rgb '#CCCCCC'
+set label "p" at first 0, -52 center tc rgb '#CCCCCC'
+
+plot \
+q0_full + delta * cos(t), delta * sin(t) / tau_full with lines lt 1 lc rgb '#8F278F' lw 6 title "Exact Level Set", \
+q0_full - 0.35 + 1.15 * delta * cos(t), 1.1 * delta * sin(t) / tau_full with lines lt 1 lw 6 lc rgb '#C799C7' title "Modified Level Set", \
+'small_batch_sym_loop_trajectory.dat' using 1:2 with points pt 7 lc rgb 'black' title "Numerical Trajectory"
+
+END
+
+gnuplot << END
+
+set terminal postscript enhanced eps color font 'Times-Roman, 25' size 4, 4.2
+set output "symmetric_level_set_scaled.eps"
+
+unset border
+
+set lmargin 0
+set rmargin 1
+set bmargin 0
+set tmargin 4.2
+
+set label "{/Symbol e} = 0.002" at screen 0.5, screen 0.9 center
+
+N = 500
+sigma = 2
+m = 0
+s = 1
+
+full_ave = 0.946468
+
+q0_full = (full_ave * N * s * s + m * sigma * sigma) / (sigma * sigma + N * s * s)
+tau_full = sqrt( sigma * sigma * s * s / (sigma * sigma + 1.0 * N * s * s) )
+
+E = 3
+delta = sqrt(2 * E)
+
+epsilon = 0.05
+C = sqrt(1 - 0.25 * epsilon * epsilon)
+
+set xrange [-4:7]
+unset xtics
+
+set yrange [-60:60]
+unset ytics
+
+set parametric
+
+set trange [0: 2 * pi]
+
+set arrow from first -4, first 0 to first 6, first 0 nohead lw 3 lc rgb '#CCCCCC'
+set arrow from first 0, first -50 to first 0, first 60 nohead lw 3 lc rgb '#CCCCCC'
+
+set label "q" at first 6.4, 0 center tc rgb '#CCCCCC'
+set label "p" at first 0, -52 center tc rgb '#CCCCCC'
+
+plot \
+q0_full + delta * cos(t), delta * sin(t) / tau_full with lines lt 1 lc rgb '#8F278F' lw 6 title "Exact Level Set", \
+'small_batch_sym_loop_scaled_trajectory.dat' using 1:2 with points pt 7 lc rgb 'black' title "Numerical Trajectory"
+
+END
