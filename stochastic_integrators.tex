@@ -182,35 +182,39 @@ Appealing to the Baker-Campbell-Hausdorff formula, this symmetric composition yi
 \phi^{V}_{\frac{\epsilon}{2}} \circ 
 \phi^{T}_{\epsilon} \circ 
 \phi^{V}_{\frac{\epsilon}{2}}
-&=
+\\
+& \hspace{-12mm} =
 e^{\frac{\epsilon}{2} \hat{V} } \circ 
 e^{\epsilon \hat{T} } \circ 
 e^{\frac{\epsilon}{2} \hat{V} }
 \\
-&=
+& \hspace{-12mm} =
 e^{\frac{\epsilon}{2} \hat{V} } \circ 
 \exp \left( \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
 + \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] \right)
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-&=
+& \hspace{-12mm} =
 \exp \left( 
 \frac{\epsilon}{2} \hat{V} + \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
 + \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right]
+\right.
+\\
+& \hspace{0mm} \left.
 + \frac{1}{2} \left[ \frac{\epsilon}{2} \hat{V}, \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
 + \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] \right]
 \right)
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-&=
-\exp \left( 
-\epsilon \hat{H} 
-+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] +\frac{\epsilon^{2}}{4} \left[ \hat{V}, \hat{T} \right] 
-+ \frac{\epsilon^{2}}{8} \left[ \hat{V}, \hat{V} \right]
-\right)
-+ \mathcal{O} \! \left( \epsilon^{3} \right)
+%& \hspace{-12mm} =
+%\exp \left( 
+%\epsilon \hat{H} 
+%+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] +\frac{\epsilon^{2}}{4} \left[ \hat{V}, \hat{T} \right] 
+%+ \frac{\epsilon^{2}}{8} \left[ \hat{V}, \hat{V} \right]
+%\right)
+%+ \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-&=
+& \hspace{-12mm} =
 e^{ \epsilon \hat{H} }
 + \mathcal{O} \! \left( \epsilon^{3} \right).
 \end{align*}
@@ -367,14 +371,16 @@ p \! \left( \mu \right) = \mathcal{N} \! \left( \mu | m, s^{2} \right).
 Separating the data into $I = N / B$ batches of size $B$ and decomposing the
 prior into $I$ individual terms then gives
 %
-\begin{equation*}
-V_{i} = 
+\begin{align*}
+V_{i} &= \mathrm{const} + 
 \frac{B}{N} \frac{ \sigma^{2} + N s^{2}  }{ \sigma^{2} s^{2} }
-\left( \mu - 
+\\
+& \quad
+\times \left( \mu - 
 \frac{ \left( \frac{1}{B} \sum_{n = (i - 1) B + 1}^{i B} x_{n} \right) N s^{2}  + m \sigma^{2} }
 { \sigma^{2} + N s^{2} } 
-\right)^{2} + \mathrm{const}.
-\end{equation*}
+\right)^{2}.
+\end{align*}
 %
 Here I take $\sigma = 2$, $m = 0$, $s = 1$, and generate $N = 500$ data points
 assuming $\mu = 1$.
@@ -430,6 +436,9 @@ e^{ \epsilon \hat{H} - \epsilon  \widehat{ \Delta V}_{j} }
 &=
 \exp \! \left( 
 2 \epsilon \hat{H} - \epsilon \left(  \widehat{ \Delta V}_{i} +  \widehat{ \Delta V}_{j} \right)
+\right.
+\\
+& \hspace{10mm} \left.
 + \frac{\epsilon^{2}}{2} \left[ \hat{H} -  \widehat{ \Delta V}_{j}, \hat{H} - \widehat{ \Delta V}_{i} \right]
 \right)
 + \mathcal{O} \! \left( \epsilon^{3} \right)
@@ -437,6 +446,9 @@ e^{ \epsilon \hat{H} - \epsilon  \widehat{ \Delta V}_{j} }
 &=
 \exp \! \left( 
 2 \epsilon \hat{H} - \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} \right)
+\right.
+\\
+& \hspace{10mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
 - \left[ \hat{H}, \hat{V}_{\setminus i} \right]
 - \left[ \hat{V}_{\setminus j}, \hat{H} \right] \right) \right)
@@ -448,40 +460,53 @@ with each other.  The first three steps are given by
 %
 \begin{align*}
 \phi^{H_{k}}_{\epsilon} \circ \phi^{H_{j}}_{\epsilon} \circ \phi^{H_{i}}_{\epsilon}
-&=
+&
+\\
+& \hspace{-15mm} =
 \exp \! \left( 
 3 \epsilon \hat{H} 
 - \epsilon \left( \widehat{ \Delta V}_{i} +  \widehat{ \Delta V}_{j} +  \widehat{ \Delta V}_{k} \right)
+\right.
+\\
+& \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
 - \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
 - \left[ \widehat{ \Delta V}_{j}, \hat{H} \right] \right) \right.
 \\
-& \hspace{13mm} \left.
+& \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
 \left[ \hat{H} - \widehat{ \Delta V}_{k}, 2 \hat{H} - \widehat{ \Delta V}_{i} - \widehat{ \Delta V}_{j} \right]
 \right)
 \right)
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-&=
+& \hspace{-15mm} =
 \exp \! \left( 
 3 \epsilon \hat{H} 
 - \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} + \widehat{ \Delta V}_{k} \right)
+\right.
+\\
+& \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
 - \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
 - \left[ \widehat{ \Delta V}_{j}, \hat{H} \right] \right) \right.
 \\
-& \hspace{13mm} \left.
+& \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
 - \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
 - \left[ \hat{H}, \widehat{ \Delta V}_{j} \right]
 - 2 \left[ \widehat{ \Delta V}_{k}, \hat{H} \right] \right) \right)
+\\
+& \hspace{-8mm}
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-&=
+& \hspace{-15mm} =
 \exp \! \left( 
 3 \epsilon \hat{H} 
 - \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} + \widehat{ \Delta V}_{k} \right)
+\right.
+\\
+& \hspace{-8mm} \left.
 - \epsilon^{2} \left( \left[ \hat{H}, \widehat{ \Delta V}_{i} \right] 
 - \left[ \hat{H}, \widehat{ \Delta V}_{k} \right] \right)
 \right) + \mathcal{O} \! \left( \epsilon^{3} \right),
@@ -492,25 +517,34 @@ an entire trajectory becomes
 %
 \begin{align*}
 \circ_{n = 1}^{N} \phi^{H_{i_{n}}}_{\epsilon}
-&=
+& \\
+& \hspace{-10mm} =
 \exp \! \left( 
 \left( N \epsilon \right) \hat{H} 
 - \left( N \epsilon \right) \frac{1}{N} \sum_{n = 1}^{N}  \widehat{ \Delta V}_{i_{n}}
+\right.
+\\
+& \hspace{2mm} \left.
 + \left( N \epsilon \right) \epsilon 
 \left( \left[ \hat{H}, \widehat{ \Delta V}_{i_{1}} \right] 
 - \left[ \hat{H}, \widehat{ \Delta V}_{i_{n}} \right] \right) 
 \right)
+\\
+& \hspace{-7mm}
 + \left(N \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
-&=
+& \hspace{-10mm} =
 \exp \! \left( \tau \hat{H} - \tau \frac{1}{N} \sum_{n = 1}^{N} \widehat{ \Delta V}_{i_{n}}
+\right.
+\\
+& \hspace{2mm} \left.
 + \tau \epsilon 
 \left( \left[ \hat{H}, \widehat{ \Delta V}_{i_{1}} \right] 
 - \left[ \hat{H}, \widehat{ \Delta V}_{i_{N}} \right] \right)
 \right)
 + \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
-&=
+& \hspace{-10mm} =
 \exp \! \left( \tau \hat{H} + \tau B_{1} + \tau B_{2} \right)
 + \mathcal{O} \! \left( \epsilon^{2} \right),
 \end{align*}
@@ -603,7 +637,7 @@ energies integrate to the gradient of the true potential energy.
 stochastic trajectory will follow the true trajectory and the bias will be small. 
 (b) Conversely, if the stochastic gradients do not integrate to the true
 potential energy then the stochastic trajectory will drift away from the true
-trajectory and induce a large bias.  As the dimensionality of the target distribution
+trajectory and induce a bias.  As the dimensionality of the target distribution
 grows, maintaining a small bias becomes increasingly more difficult unless
 every subsample is used within a stochastic trajectory.}
 \label{fig:subsampled_gradients}
