@@ -12,7 +12,7 @@ set rmargin 1
 set bmargin 0
 set tmargin 5
 
-set label "Full Data (N = 500)" at screen 0.5, screen 0.9 center
+set label "Full Data (J = 1, B = 500)" at screen 0.5, screen 0.9 center
 
 N = 500
 sigma = 2
@@ -64,7 +64,7 @@ set rmargin 1
 set bmargin 0
 set tmargin 5
 
-set label "Small Subset (N = 10)" at screen 0.5, screen 0.9 center
+set label "Small Subset (J = 50, B = 10)" at screen 0.5, screen 0.9 center
 
 B = 20
 N = 500
@@ -123,7 +123,7 @@ set rmargin 1
 set bmargin 0
 set tmargin 5
 
-set label "Large Subset (N = 250)" at screen 0.5, screen 0.9 center
+set label "Large Subset (J = 2, B = 250)" at screen 0.5, screen 0.9 center
 
 B = 250
 N = 500

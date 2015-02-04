@@ -14,7 +14,7 @@ set log x
 set xtics scale 0 nomirror
 
 set yrange [0:1.1]
-set ylabel "Average Acceptance Probability"
+set ylabel "Average Acceptance Probability \n Using Full Data"
 set ytics scale 0 nomirror
 
 set label "Full Data" at screen 0.85, first 0.8 center tc rgb '#8F278F'

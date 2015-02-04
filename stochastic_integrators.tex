@@ -44,28 +44,30 @@ With the preponderance of applications featuring enormous data sets,
 methods of inference requiring only subsamples of data are becoming 
 more and more appealing.  Subsampled Markov Chain Monte Carlo 
 algorithms, \cite{NeiswangerEtAl:2013, WellingEtAl:2011}, are particularly
-desired for their applicability to a wide class of statistical models.  
-Unfortunately, careful analysis of these algorithms reveals unavoidable 
-biases unless the data are \textit{tall}, or highly redundant 
+desired for their potential applicability to most statistical models.  Unfortunately, 
+careful analysis of these algorithms reveals unavoidable biases unless 
+the data are \textit{tall}, or highly redundant 
 \cite{BardenetEtAl:2014, TehEtAl:2014, VollmerEtAl:2015}.  
 The utility of these subsampled algorithms is then a consequence 
-of both the desired accuracy and the size of the bias, which itself 
-is sensitive to the details of the model and the data at hand.
+of not only the desired accuracy and also the particular model and data
+under consideration, which can severely restrict practicality.
 
 Recently \cite{ChenEtAl:2014} considered subsampling within Hamiltonian
 Monte Carlo \cite{DuaneEtAl:1987, Neal:2011, BetancourtEtAl:2014} and 
 demonstrated that the biases induced by naive subsampling lead to 
-unacceptably large biases.  Ultimately the authors compensated this bias by 
-sacrificing the coherent exploration of Hamiltonian flow for a diffusive 
-correction and fundamentally changing the nature of the algorithm.
-Because coherent exploration is so critical to the scalability of Hamiltonian 
-Monte Carlo, it is important the understand why the performance of
-the algorithm degrades so quickly when the data are naively subsampled.  
+unacceptably large biases.  Ultimately the authors rectified this bias by
+sacrificing the coherent exploration of Hamiltonian flow for a diffusive correction, 
+fundamentally compromising the scalability of the algorithm with respect to
+the complexity of the target distribution.  An algorithm scalable with respect to
+both the size of the data and the complexity of the target distribution would
+have to maintain the coherent exploration of Hamiltonian flow while 
+subsampling and, unfortunately, these objectives are mutually exclusive in
+general.
 
-In this paper I review the features of Hamiltonian Monte Carlo that make 
-it so robust and scalable in practice and demonstrate how different subsampling 
-strategies all compromise those properties and consequently induce poor 
-performance. 
+In this paper I review the elements of Hamiltonian Monte Carlo critical to its
+robust and scalable performance in practice and demonstrate how different 
+subsampling strategies all compromise those properties and consequently 
+induce poor performance. 
 
 \section{Hamiltonian Monte Carlo in Theory}
 
@@ -234,7 +236,7 @@ e^{ \epsilon \hat{H} }
 + \mathcal{O} \! \left( \epsilon^{3} \right).
 \end{align*}
 %
-Composing this symmetric composition with itself $N = \tau / \epsilon$ times results in 
+Composing this symmetric composition with itself $L = \tau / \epsilon$ times results in 
 a symplectic integrator accurate to second-order in the step size for any finite integration 
 time, $\tau$,
 %
@@ -243,15 +245,15 @@ time, $\tau$,
 &\equiv
 \left( \phi^{V}_{\frac{\epsilon}{2}} \circ 
 \phi^{T}_{\epsilon} \circ 
-\phi^{V}_{\frac{\epsilon}{2}} \right)^{N}
+\phi^{V}_{\frac{\epsilon}{2}} \right)^{L}
 \\
 &=
 \left( e^{ \epsilon \hat{H} }
-+ \mathcal{O} \! \left( \epsilon^{3} \right) \right)^{N}
++ \mathcal{O} \! \left( \epsilon^{3} \right) \right)^{L}
 \\
 &=
-e^{ \left( N \epsilon \right) \hat{H} }
-+ \left( N \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
+e^{ \left( L \epsilon \right) \hat{H} }
++ \left( L \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 &=
 e^{ \tau \hat{H} }
@@ -269,8 +271,8 @@ perturbation of the exact Hamiltonian \cite{HairerEtAl:2006, BetancourtEtAl:2014
 Although such symplectic integrators are accurate they still introduce an
 error into the trajectories that can bias the Markov chain and any resulting
 Monte Carlo estimators.  In practice this error is typically compensated with
-the application of a Metropolis acceptance procedure, accepting the numerical
-trajectory only with probability
+the application of a Metropolis acceptance procedure, accepting a point along
+the numerical trajectory only with probability
 %
 \begin{equation*}
 a (p, q) = \min \left(1, 
@@ -353,7 +355,7 @@ persists over an entire trajectory,
 \begin{equation*}
 \left( e^{\frac{\epsilon}{2} I \hat{V}_{j} } \circ 
 e^{\epsilon \hat{T} } \circ 
-e^{\frac{\epsilon}{2} I \hat{V}_{j} } \right)^{N}
+e^{\frac{\epsilon}{2} I \hat{V}_{j} } \right)^{L}
 =
 e^{ \tau \left( \hat{H} - \widehat{ \Delta V}_{j} \right) }
 + \mathcal{O} \! \left( \epsilon^{2} \right).
@@ -364,8 +366,8 @@ $J \, \partial V_{j} / \partial q $, drifts away from the true gradient,
 $\partial V / \partial q $, unless the data become increasingly redundant.
 Consequently the resulting trajectory introduces an irreducible bias into
 the algorithm, similar in nature to the asymptotic bias seen in subsampled
-Langevin Monte Carlo \cite{TehEtAl:2014, VollmerEtAl:2015}.  This
-irreducible bias then induces either a vanishing Metropolis acceptance probability 
+Langevin Monte Carlo \cite{TehEtAl:2014, VollmerEtAl:2015}, which then 
+induces either a vanishing Metropolis acceptance probability 
 or highly-biased expectations if the Metropolis procedure is ignored outright 
 (Figure \ref{fig:subsampled_gradients}).  
 
@@ -435,7 +437,7 @@ Consider, for example, a simple application where we target a one-dimensional
 posterior distribution,
 %
 \begin{equation} \label{posterior}
-p \! \left( \mu | \vec{x} \right) \propto p \! \left( \vec{x} | \mu \right) p\ \! \left( \mu \right),
+p \! \left( \mu | \vec{x} \right) \propto p \! \left( \vec{x} | \mu \right) p \! \left( \mu \right),
 \end{equation}
 %
 with the likelihood
@@ -471,7 +473,7 @@ When the full data are used numerical trajectories generated by the second-order
 symplectic integrator constructed above closely follow the true trajectories 
 (Figure \ref{fig:level_sets}a).  Approximating the potential with a subsample of the data 
 introduces the aforementioned bias, which shifts the stochastic trajectory away from the 
-exact trajectory despite negligible error from the finite step size (Figure \ref{fig:level_sets}b).
+exact trajectory despite negligible error from the symplectic integrator itself (Figure \ref{fig:level_sets}b).
 Only when the size of each subsample approaches the full data set, and the computational
 benefit of subsampling fades, does the stochastic trajectory provide a reasonable
 approximation to the exact trajectory (Figure \ref{fig:level_sets}c)
@@ -481,7 +483,7 @@ approximation to the exact trajectory (Figure \ref{fig:level_sets}c)
 \subfigure[]{\includegraphics[width=1.75in]{full_level_set.eps}}
 \subfigure[]{\includegraphics[width=1.75in]{small_batch_level_set.eps}}
 \subfigure[]{\includegraphics[width=1.75in]{large_batch_level_set.eps}}
-\caption{Even for a one-dimensional target distribution \eqref{posterior}, subsampling
+\caption{Even for the one-dimensional target distribution \eqref{posterior}, subsampling
 data in between Hamiltonian trajectories introduces significant pathologies.
 (a) When the full data are used, numerical Hamiltonian trajectories (dashed line) 
 closely track the exact Hamiltonian trajectories (solid line).  Subsampling of the
@@ -494,20 +496,40 @@ trajectories provide a reasonable emulation of the true trajectories.}
 \label{fig:level_sets}
 \end{figure}
 
-\textbf{Blah blah blah make it multivariate with means sampled from N(0, 1).
-Discuss sub sampling strategy and choice of step sizes and then reference figure}.
+As noted above, geometric considerations suggest that this bias should grow with the 
+dimensionality of the target distribution.  To see this, consider running Hamiltonian
+Monte Carlo, implemented with a second-order symplectic integrator using step size, 
+$\epsilon$, and a random integration time for each trajectory, $\tau \sim U \! \left(0, 2 \pi \right)$,
+on the multivariate generalization of \eqref{posterior},
+%
+\begin{equation} \label{multivariate_posterior}
+\prod_{d = 1}^{D} p \! \left( \mu_{d} | \vec{x}_{d} \right),
+\end{equation}
+%
+where the true $\mu_{d}$ are sampled from $\mu_{d} \sim \mathcal{N} \! \left( 0, 1 \right)$.
+As a surrogate for the accuracy of the resulting samples I will use the average
+Metropolis acceptance probability using the full data.
+
+When the full data are used, the step size of the symplectic integrator can be tuned to 
+maintain constant accuracy as the dimensionality of the target distribution, $D$, increases.
+The bias induced by subsampling between trajectories, however, is invariant to the
+step size of the integrator and rapidly increases with the dimension of the target distribution.
+Here the data were partitioned into $J = 25$ batches of $B = 20$ data, the subsample
+used for each trajectories randomly selected from the first five batches, and the step size 
+of the subsampled trajectories reduced by $N / (J * B) = 5$ to equalize the computational
+cost with full data trajectories (Figure \ref{fig:multivariate}).
 
 \begin{figure}
 \centering
 \includegraphics[width=3.25in]{multivariate.eps}
-\caption{When using the full data the error in the numerical trajectories
-can be controlled to ensure efficient yet coherent exploration.  Here
-bias is empirically represented by the average acceptance probability 
-using the full data, which would also manifest as biased expectations
-if uncorrected samples were used.
-Subsampling the data, however, introduces biases that grow with the
-dimensionality of the target distribution and annihilate the acceptance
-probability. }
+\caption{When the full data are used, high accuracy of Hamiltonian Monte Carlo samples, 
+here represented by the average Metropolis acceptance probability using the full data, can 
+maintained even as the dimensionally of the target distribution grows.  The biases induced 
+when the data are subsampled, however, cannot be controlled and quickly devastate the 
+accuracy of the algorithm.  Here the step size of the subsampled algorithms has been decreased
+relative to the full data algorithm in order to equalize the computational cost -- even in this
+simple example, a proper implementation of Hamiltonian Monte Carlo can achieve a given
+accuracy much more efficiently than subsampling.}
 \label{fig:multivariate}
 \end{figure}
 
@@ -728,8 +750,9 @@ stochastic trajectory can be controlled by taking the step size to zero. }
 
 As before, limiting the number of subsamples introduces an irreducible bias
 into the trajectories the bias cannot be controlled by the tuning the step size
-(Figure \ref{fig:subsample_trajectory}).  Again we are left dependent on the 
-redundancy of the data for any hope of improved performance with subsampling.
+(Figures \ref{fig:subsample_trajectory}, \ref{fig:multivariate}).  Again we are 
+left dependent on the redundancy of the data for any hope of improved 
+performance with subsampling.
 
 \begin{figure}
 \centering
