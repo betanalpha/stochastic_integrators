@@ -1,0 +1,29 @@
+#!/bin/bash
+
+gnuplot << END
+
+set terminal postscript enhanced eps color font 'Times-Roman, 25' size 6, 4
+set output "multivariate.eps"
+
+set border 3 back
+set rmargin screen 0.7
+
+set xrange [0.5:1500]
+set xlabel "Dimension"
+set log x
+set xtics scale 0 nomirror
+
+set yrange [0:1.1]
+set ylabel "Average Acceptance Probability"
+set ytics scale 0 nomirror
+
+set label "Full Data" at screen 0.85, first 0.8 center tc rgb '#8F278F'
+set label "Subsampled Between" at screen 0.85, first 0.05 center tc rgb '#B97CB9'
+set label "Subsampled Within" at screen 0.85, first 0.0 center tc rgb '#C799C7'
+
+plot \
+'full_accept_probs.dat' using 1:2 with lines lt 1 lc rgb '#8F278F' lw 6 notitle, \
+'subsampled_between_accept_probs.dat' using 1:2 with lines lt 1 lc rgb '#B97CB9' lw 6 notitle, \
+'subsampled_within_accept_probs.dat' using 1:2 with lines lt 1 lc rgb '#C799C7' lw 6 notitle
+
+END

@@ -59,9 +59,8 @@ unacceptably large biases.  Ultimately the authors compensated this bias by
 sacrificing the coherent exploration of Hamiltonian flow for a diffusive 
 correction and fundamentally changing the nature of the algorithm.
 Because coherent exploration is so critical to the scalability of Hamiltonian 
-Monte Carlo, it is important the understand the why the performance of
-the algorithm degrades so quickly when the data are subsampled without
-any diffusive correction.  
+Monte Carlo, it is important the understand why the performance of
+the algorithm degrades so quickly when the data are naively subsampled.  
 
 In this paper I review the features of Hamiltonian Monte Carlo that make 
 it so robust and scalable in practice and demonstrate how different subsampling 
@@ -493,6 +492,23 @@ is large, offsetting both the exact and numerical stochastic trajectories.
 and any computational benefits from subsampling wane, do the stochastic 
 trajectories provide a reasonable emulation of the true trajectories.}
 \label{fig:level_sets}
+\end{figure}
+
+\textbf{Blah blah blah make it multivariate with means sampled from N(0, 1).
+Discuss sub sampling strategy and choice of step sizes and then reference figure}.
+
+\begin{figure}
+\centering
+\includegraphics[width=3.25in]{multivariate.eps}
+\caption{When using the full data the error in the numerical trajectories
+can be controlled to ensure efficient yet coherent exploration.  Here
+bias is empirically represented by the average acceptance probability 
+using the full data, which would also manifest as biased expectations
+if uncorrected samples were used.
+Subsampling the data, however, introduces biases that grow with the
+dimensionality of the target distribution and annihilate the acceptance
+probability. }
+\label{fig:multivariate}
 \end{figure}
 
 \subsection{Subsampling Data within a Single Trajectory}
