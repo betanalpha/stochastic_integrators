@@ -19,10 +19,10 @@
 
 \begin{document}
 
-\icmltitlerunning{Understanding the Poor Performance of Subsampled Hamiltonian Monte Carlo}
+\icmltitlerunning{The Fundamental Incompatibility of Hamiltonian Monte Carlo and Data Subsampling}
 
 \twocolumn[
-\icmltitle{Understanding the Poor Performance of \\ Subsampled Hamiltonian Monte Carlo}
+\icmltitle{The Fundamental Incompatibility of \\ Hamiltonian Monte Carlo and Data Subsampling}
 
 \icmlauthor{Michael Betancourt}{betanalpha@gmail.com}
 \icmladdress{Department of Statistics, University of Warwick, Coventry, UK CV4 7AL}
@@ -33,11 +33,13 @@
 ]
 
 \begin{abstract}
-When confronted with data-intensive applications, algorithms that utilize only subsamples 
-of the data offer substantially-reduced computational burdens at the expense of biases
-in the resulting inferences.  In this paper I demonstrate how subsampling biases in 
-Hamiltonian Monte Carlo are particularly dangerous and why the utility of this approach
-is limited to only those problems with highly-redundant data.
+Leveraging the coherent exploration of Hamiltonian flow, Hamiltonian Monte Carlo 
+produces computationally efficient Monte Carlo estimators, even with respect to
+complex and high-dimensional target distributions.  When confronted with data-intensive 
+applications, however, the algorithm may be too expensive to implement, leaving us to 
+consider the utility of approximations such as data subsampling.  In this paper I demonstrate
+how data subsampling fundamentally compromises the efficient exploration of Hamiltonian 
+flow and hence the scalable performance of Hamiltonian Monte Carlo itself.
 \end{abstract}
 
 With the preponderance of applications featuring enormous data sets,
@@ -429,7 +431,7 @@ the true gradient, while subsampling within a single trajectory requires only th
 average of the subsampled gradients approximates the true gradient.  As the dimension of
 the target distribution grows, however, an accurate approximation in either case
 becomes increasingly more difficultly unless the data become correspondingly more
-redundant.}
+redundant relative to the complexity of the target distribution.}
 \label{fig:subsampled_gradients}
 \end{figure*}
 
@@ -516,7 +518,7 @@ The bias induced by subsampling between trajectories, however, is invariant to t
 step size of the integrator and rapidly increases with the dimension of the target distribution.
 Here the data were partitioned into $J = 25$ batches of $B = 20$ data, the subsample
 used for each trajectories randomly selected from the first five batches, and the step size 
-of the subsampled trajectories reduced by $N / (J * B) = 5$ to equalize the computational
+of the subsampled trajectories reduced by $N / (J \cdot B) = 5$ to equalize the computational
 cost with full data trajectories (Figure \ref{fig:multivariate}).
 
 \begin{figure}
@@ -537,7 +539,7 @@ accuracy much more efficiently than subsampling.}
 
 Given that using a single subsample for an entire trajectory introduces an
 irreducible bias, we might next consider subsampling at each step within
-a single trajectory and hope that the bias from each subsample cancels
+a single trajectory, hoping that the bias from each subsample cancels
 in expectation.  Ignoring any Metropolis correction, this is exactly the
 \textit{naive stochastic gradient Hamiltonian Monte Carlo} of \cite{ChenEtAl:2014}.
 
@@ -632,35 +634,35 @@ with each other.  Similarly, the first three steps are given by
 \right) + \mathcal{O} \! \left( \epsilon^{3} \right),
 \end{align*}
 %
-and, letting $j_{n}$ denote the subsample chosen at the $n$-th step, the composition over
+and, letting $j_{l}$ denote the subsample chosen at the $l$-th step, the composition over
 an entire trajectory becomes
 %
 \begin{align*}
-\circ_{n = 1}^{N} \phi^{H_{j_{n}}}_{\epsilon}
+\circ_{l = 1}^{L} \phi^{H_{j_{l}}}_{\epsilon}
 & \\
 & \hspace{-10mm} =
 \exp \! \left( 
-\left( N \epsilon \right) \hat{H} 
-- \left( N \epsilon \right) \frac{1}{N} \sum_{n = 1}^{N}  \widehat{ \Delta V}_{j_{n}}
+\left( L \epsilon \right) \hat{H} 
+- \left( L \epsilon \right) \frac{1}{L} \sum_{l = 1}^{L}  \widehat{ \Delta V}_{j_{l}}
 \right.
 \\
 & \hspace{2mm} \left.
-+ \left( N \epsilon \right) \epsilon 
++ \left( L \epsilon \right) \epsilon 
 \left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{n}} \right] \right) 
+- \left[ \hat{H}, \widehat{ \Delta V}_{j_{l}} \right] \right) 
 \right)
 \\
 & \hspace{-7mm}
-+ \left(N \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
++ \left(L \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 & \hspace{-10mm} =
-\exp \! \left( \tau \hat{H} - \tau \frac{1}{N} \sum_{n = 1}^{N} \widehat{ \Delta V}_{j_{n}}
+\exp \! \left( \tau \hat{H} - \tau \frac{1}{L} \sum_{l = 1}^{L} \widehat{ \Delta V}_{j_{l}}
 \right.
 \\
 & \hspace{2mm} \left.
 + \tau \epsilon 
 \left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{N}} \right] \right)
+- \left[ \hat{H}, \widehat{ \Delta V}_{j_{L}} \right] \right)
 \right)
 + \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
@@ -672,7 +674,7 @@ an entire trajectory becomes
 where
 %
 \begin{equation*}
-B_{1} = - \sum_{n = 1}^{N} \widehat{ \Delta V}_{j_{n}}
+B_{1} = - \frac{1}{L} \sum_{l = 1}^{L} \widehat{ \Delta V}_{j_{l}}
 \end{equation*}
 %
 and
@@ -680,47 +682,47 @@ and
 \begin{equation*}
 B_{2} = \epsilon 
 \left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{N}} \right] \right).
+- \left[ \hat{H}, \widehat{ \Delta V}_{j_{L}} \right] \right).
 \end{equation*}
 %
-As above, subsampling the data introduces bias into the numerical trajectories.
+Once again, subsampling the data introduces bias into the numerical trajectories.
 
 Although the second source of bias, $B_{2}$, is immediately rectified by appending the 
-stochastic trajectory with an update from the initial subsample such that $j_{N} = j_{1}$, 
+stochastic trajectory with an update from the initial subsample such that $j_{L} = j_{1}$, 
 the first source of bias, $B_{1}$, is not so easily remedied.  Expanding,
 %
 \begin{align*}
-\frac{1}{N} \sum_{n = 1}^{N}  \widehat{ \Delta V}_{j_{n}}
+\frac{1}{L} \sum_{l = 1}^{L}  \widehat{ \Delta V}_{j_{l}}
 &=
-\frac{1}{N} \sum_{n = 1}^{N} \left( \hat{V} - J \, \hat{V}_{j_{n}} \right)
+\frac{1}{L} \sum_{l = 1}^{L} \left( \hat{V} - J \, \hat{V}_{j_{l}} \right)
 \\
 &=
-\hat{V} - \frac{J}{N} \sum_{n = 1}^{N} \hat{V}_{j_{n}}
+\hat{V} - \frac{J}{L} \sum_{n = 1}^{L} \hat{V}_{j_{l}}
 \\
 &=
-- \left( \frac{ \partial V }{ \partial q }  - \frac{J}{N} \sum_{n = 1}^{N} \frac{ \partial V_{j} }{ \partial q }
+- \left( \frac{ \partial V }{ \partial q }  - \frac{J}{L} \sum_{l = 1}^{L} \frac{ \partial V_{j} }{ \partial q }
 \right) \frac{ \partial }{ \partial p },
 \end{align*}
 %
 we see that $B_{1}$ vanishes only when the average gradient of the selected 
-subsamples yields the gradient of the full potential.  As initially hoped, averaging 
-over subsamples does reduce the bias compared to a single subsample 
-\eqref{eqn:between_bias}, but the bias still scales poorly with the dimensionality
-of the target distribution (Figure \ref{fig:subsampled_gradients}).
+subsamples yields the gradient of the full potential.  Averaging over subsamples 
+may reduce the bias compared to a single subsample \eqref{eqn:between_bias}, 
+but the bias still scales poorly with the dimensionality of the target distribution 
+(Figure \ref{fig:subsampled_gradients}).
 
-In order to ensure that the bias vanishes identically independent of the redundancy
-of the data we have to use each subsample the same number of times within a single 
-trajectory.  In particular, both biases identically vanish if we use each subsample twice 
-in a symmetric composition of the form
+In order to ensure that the bias vanishes identically and independent of the redundancy
+of the data, we have to use each subsample the same number of times within a single 
+trajectory.  In particular, both biases vanish if we use each subsample twice in a symmetric 
+composition of the form
 %
 \begin{equation*}
-\left( \circ_{n = 1}^{N} \phi^{H_{n}}_{\epsilon} \right)
+\left( \circ_{l = 1}^{L} \phi^{H_{l}}_{\epsilon} \right)
 \circ 
-\left( \circ_{n = 1}^{N} \phi^{H_{N + 1 - n}}_{\epsilon} \right).
+\left( \circ_{l = 1}^{L} \phi^{H_{L + 1 - l}}_{\epsilon} \right).
 \end{equation*}
 %
 Because this composition requires using all of the subsamples it does not provide
-any computational savings and seems rather at odd with the original stochastic 
+any computational savings and it seems rather at odd with the original stochastic 
 subsampling motivation. 
 
 Indeed, this symmetric composition is not stochastic at all and actually corresponds 
@@ -738,55 +740,60 @@ once again controllable and vanishes as the step size is decreased
 \subfigure[]{\includegraphics[width=1.95in]{symmetric_trajectory.eps}}
 \subfigure[]{\includegraphics[width=1.95in]{symmetric_level_set.eps}}
 \subfigure[]{\includegraphics[width=1.95in]{symmetric_level_set_scaled.eps}}
-\caption{The symmetric composition of flows from each subsample eliminates
-all bias in the stochastic trajectory because it implicitly reconstructs a symplectic
-integrator.  Refining all (a) steps in a stochastic trajectory (b) to
-only those occurring after a symmetric sweep of the subsamples reveals
+\caption{The symmetric composition of flows from each subsamples of the data 
+eliminates all bias in the stochastic trajectory because it implicitly reconstructs a 
+symplectic integrator.  Refining (a) all intermediate steps in a stochastic trajectory 
+(b) to only those occurring after a symmetric sweep of the subsamples reveals
 the level set of the modified Hamiltonian corresponding to the implicit
 symplectic integrator.  Because of the vanishing bias, (c) the error in the
 stochastic trajectory can be controlled by taking the step size to zero. }
 \label{fig:symmetric_stochastic}
 \end{figure}
 
-As before, limiting the number of subsamples introduces an irreducible bias
-into the trajectories the bias cannot be controlled by the tuning the step size
-(Figures \ref{fig:subsample_trajectory}, \ref{fig:multivariate}).  Again we are 
-left dependent on the redundancy of the data for any hope of improved 
+Limiting the number of subsamples, however, leaves an irreducible bias
+into the trajectories that cannot be controlled by the tuning the step size
+(Figures \ref{fig:multivariate}, \ref{fig:subsample_trajectory}).  Once more 
+we are left dependent on the redundancy of the data for any hope of improved 
 performance with subsampling.
 
 \begin{figure}
 \centering
 \subfigure[]{\includegraphics[width=2.9in]{subsample_trajectory.eps}}
 \subfigure[]{\includegraphics[width=2.9in]{subsample_trajectory_step3.eps}}
-\caption{(a) Utilizing only a few subsamples yields numerical trajectories
-biased away from the exact trajectories.  (b) Unlike the error introduced by
-a full symplectic integrator, this bias is irreducible and cannot be controlled
+\caption{(a) Utilizing only a few subsamples within a trajectory yields numerical 
+trajectories biased away from the exact trajectories.  (b) Unlike the error introduced 
+by a full symplectic integrator, this bias is irreducible and cannot be controlled
 by tuning the step size.  The performance of such an algorithm is limited by 
-the size of the bias which itself depends on the redundancy of the data.}
+the size of the bias which itself depends on the redundancy of the data relative
+to the target model.}
 \label{fig:subsample_trajectory}
 \end{figure}
 
 \section{Conclusion}
 
+The efficacy of Markov Chain Monte Carlo for complex, high-dimensional 
+target distributions depends on the ability of the sampler to explore the intricate 
+and often meandering neighborhoods on which probability is distributed.
 Symplectic integrators admit a structure-preserving implementation of
-Hamiltonian Monte Carlo that is amazingly robust to model complexity,
-even in many dimensions and with sparse data.  When the data are
-subsampled, however, this structure-preservation is compromised and
-and the scalable performance is replaced with an irreducible bias that
-grows with the dimensionality of the problem.  
+Hamiltonian Monte Carlo that is amazingly robust to this complexity
+and capable of efficiently exploring the most complex target distributions.
+Subsampled data, however, does not in general have enough information 
+to enable such efficient exploration; this lack of information manifests as
+an irreducible bias that devastates the scalable performance of Hamiltonian 
+Monte Carlo.
 
-Without having access to the full data there is no general way of engineering 
-a well-behaved implementation of Hamiltonian Monte Carlo.  As with so many
-other subsampling algorithms, the adequacy of a subsampled Hamiltonian
+Consequently, without having access to the full data there is no general way of 
+engineering a well-behaved implementation of Hamiltonian Monte Carlo.  As with 
+so many other subsampling algorithms, the adequacy of a subsampled Hamiltonian
 Monte Carlo implementation is at the mercy of the redundancy of the data
-relative to the complexity of the target model.
+relative to the complexity of the target model, and not in the control of the user.
 
 Unfortunately many of the problems at the frontiers of applied statistics are 
 in the \textit{wide data} regime, where data are sparse relative to model 
-complexity.  Here subsampling methods have little hope of success and
-we must instead focus our efforts on improving implementations using
-the full data, for example by improving internal memory management and 
-efficiently parallelizing gradient calculations.
+complexity.  Here subsampling methods have little hope of success;
+we must focus our efforts not on modifying Hamiltonian Monte Carlo but rather
+on improving its implementation with, for example, better memory management 
+and efficiently parallelized gradient calculations.
 
 %\section*{Acknowledgements}
 
