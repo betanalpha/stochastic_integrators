@@ -6,7 +6,7 @@
 \usepackage{subfigure}
 \usepackage{color}
 \usepackage{hyperref}
-\usepackage{icml2015}
+\usepackage[accepted]{icml2015}
 \usepackage{tikz}
 
 \usetikzlibrary{intersections, backgrounds}
@@ -382,7 +382,7 @@ any computational benefits.
 %
 \subfigure[]{
 %\begin{tikzpicture}[scale=0.20, thick, show background rectangle]
-\begin{tikzpicture}[scale=0.20, thick]
+\begin{tikzpicture}[scale=0.25, thick]
   
   \draw [light, thick] plot [smooth, tension=1.1] coordinates {(0,5) (10, 10) (21, 8) (25, 8)}
   node[right] { Stochastic };
@@ -403,7 +403,7 @@ any computational benefits.
 }
 \subfigure[]{
 %\begin{tikzpicture}[scale=0.20, thick, show background rectangle]
-\begin{tikzpicture}[scale=0.20, thick]
+\begin{tikzpicture}[scale=0.25, thick]
 
   \draw [light, thick] plot [smooth, tension=0.8] coordinates {(0,5) (2, 6.75) (4, 8) (6, 8.95) 
   (8, 9.6) (10, 10) (12, 10.7) (14, 13) (16, 17)}
@@ -602,7 +602,8 @@ with each other.  Similarly, the first three steps are given by
 \right)
 \\
 & \hspace{-11mm} + \mathcal{O} \! \left( \epsilon^{3} \right)
-\\
+\end{align*}
+%
 %& \hspace{-15mm} =
 %\exp \! \left( 
 %3 \epsilon \hat{H} 
@@ -623,6 +624,9 @@ with each other.  Similarly, the first three steps are given by
 %& \hspace{-8mm}
 %+ \mathcal{O} \! \left( \epsilon^{3} \right)
 %\\
+\begin{align*}
+\phi^{H_{k}}_{\epsilon} \circ \phi^{H_{j}}_{\epsilon} \circ \phi^{H_{i}}_{\epsilon}
+\\
 & \hspace{-15mm} =
 \exp \! \left( 
 3 \epsilon \hat{H} 
