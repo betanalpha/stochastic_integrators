@@ -6,9 +6,9 @@
 \usepackage{subfigure}
 \usepackage{color}
 \usepackage{hyperref}
-\usepackage{icml2015}
-\usepackage{tikz}
+\usepackage[accepted]{icml2015}
 
+\usepackage{tikz}
 \usetikzlibrary{intersections, backgrounds}
 
 \definecolor{light}{RGB}{199, 153, 199}
@@ -19,10 +19,10 @@
 
 \begin{document}
 
-\icmltitlerunning{The Fundamental Incompatibility of Hamiltonian Monte Carlo and Data Subsampling}
+\icmltitlerunning{The Fundamental Incompatibility of Scalable Hamiltonian Monte Carlo and Naive Data Subsampling}
 
 \twocolumn[
-\icmltitle{The Fundamental Incompatibility of \\ Hamiltonian Monte Carlo and Data Subsampling}
+\icmltitle{The Fundamental Incompatibility of \\ Scalable Hamiltonian Monte Carlo and Naive Data Subsampling}
 
 \icmlauthor{Michael Betancourt}{betanalpha@gmail.com}
 \icmladdress{Department of Statistics, University of Warwick, Coventry, UK CV4 7AL}
@@ -38,8 +38,7 @@ produces computationally efficient Monte Carlo estimators, even with respect to
 complex and high-dimensional target distributions.  When confronted with data-intensive 
 applications, however, the algorithm may be too expensive to implement, leaving us to 
 consider the utility of approximations such as data subsampling.  In this paper I demonstrate
-how data subsampling fundamentally compromises the efficient exploration of Hamiltonian 
-flow and hence the scalable performance of Hamiltonian Monte Carlo itself.
+how data subsampling fundamentally compromises the scalability of Hamiltonian Monte Carlo.
 \end{abstract}
 
 With the preponderance of applications featuring enormous data sets,
@@ -50,9 +49,10 @@ desired for their potential applicability to most statistical models.  Unfortuna
 careful analysis of these algorithms reveals unavoidable biases unless 
 the data are \textit{tall}, or highly redundant 
 \cite{BardenetEtAl:2014, TehEtAl:2014, VollmerEtAl:2015}.  
-The utility of these subsampled algorithms is then a consequence 
-of not only the desired accuracy and also the particular model and data
-under consideration, which can severely restrict practicality.
+Because redundancy can be defined only relative to a given model, the
+utility of these subsampled algorithms is then a consequence of not only 
+the desired accuracy and also the particular model and data under consideration, 
+severely restricting practicality.
 
 Recently \cite{ChenEtAl:2014} considered subsampling within Hamiltonian
 Monte Carlo \cite{DuaneEtAl:1987, Neal:2011, BetancourtEtAl:2014} and 
@@ -62,9 +62,8 @@ sacrificing the coherent exploration of Hamiltonian flow for a diffusive correct
 fundamentally compromising the scalability of the algorithm with respect to
 the complexity of the target distribution.  An algorithm scalable with respect to
 both the size of the data and the complexity of the target distribution would
-have to maintain the coherent exploration of Hamiltonian flow while 
-subsampling and, unfortunately, these objectives are mutually exclusive in
-general.
+have to maintain the coherent exploration of Hamiltonian flow while subsampling 
+and, unfortunately, these objectives are mutually exclusive in general.
 
 In this paper I review the elements of Hamiltonian Monte Carlo critical to its
 robust and scalable performance in practice and demonstrate how different 
@@ -74,17 +73,17 @@ induce poor performance.
 \section{Hamiltonian Monte Carlo in Theory}
 
 Hamiltonian Monte Carlo utilizes deterministic, measure-preserving maps to 
-generate efficient Markov transitions.  Formally, we begin by complementing 
-a target distribution,
+generate efficient Markov transitions \citep{BetancourtEtAl:2014}.  Formally, 
+we begin by complementing a target distribution,
 %
 \begin{equation*}
-\varpi \propto \exp \! \left[ - V ( q ) \right] \mathrm{d}^{n} q,
+\pi \propto \exp \! \left[ - V ( q ) \right] \mathrm{d}^{n} q,
 \end{equation*}
 %
 with a conditional distribution over auxiliary \textit{momenta} parameters,
 %
 \begin{equation*}
-\varpi_{q} \propto \exp \! \left[ - T (p, q) \right] \mathrm{d}^{n} p.
+\pi_{q} \propto \exp \! \left[ - T (p, q) \right] \mathrm{d}^{n} p.
 \end{equation*}
 %
 Together these define a joint distribution,
@@ -97,28 +96,31 @@ Together these define a joint distribution,
 \end{align*}
 %
 and a \textit{Hamiltonian system} corresponding to the \textit{Hamiltonian},
-$ H (q, p) $.  We refer to $T (q, p)$ and $V (q)$ as the \textit{kinetic energy} 
+$H (q, p)$.  We refer to $T (q, p)$ and $V (q)$ as the \textit{kinetic energy} 
 and \textit{potential energy}, respectively.
 
-The Hamiltonian immediately defines a \textit{Hamiltonian flow} on the joint
-space,
-%
-\begin{align*}
-\phi^{H}_{t} : (q, p) &\rightarrow (q, p), \forall t \in \mathbb{R}
-\\
-\phi^{H}_{t} \circ \phi^{H}_{s} &= \phi^{H}_{s + t},
-\end{align*}
-%
-which exactly preserves the joint distribution,
+The Hamiltonian immediately defines a \textit{Hamiltonian vector field},
 %
 \begin{equation*}
-\left( \phi^{H}_{t} \right)_{*} \varpi_{H} = \varpi_{H}.
+\vec{H} 
+= 
+\frac{ \partial H }{ \partial p } \frac{ \partial }{ \partial q}
+- \frac{ \partial H }{ \partial q } \frac{ \partial }{ \partial p},
 \end{equation*}
 %
-Consequently, we can compose a Markov chain by sampling the auxiliary momenta, 
+and an application of the exponential map yields a \textit{Hamiltonian flow}
+on the joint space, $\phi^{H}_{\tau} = e^{\tau \vec{H}}$ \citep{Lee:2013},
+which exactly preserves the joint distribution under a pullback,
 %
 \begin{equation*}
-q \rightarrow (q, p), \, p \sim \varpi_{q},
+\left( \phi^{H}_{t} \right)_{*} \pi_{H} = \pi_{H}.
+\end{equation*}
+%
+Consequently, we can compose a Markov chain by sampling the auxiliary 
+momenta, 
+%
+\begin{equation*}
+q \rightarrow (q, p), \, p \sim \pi_{q},
 \end{equation*}
 %
 applying the Hamiltonian flow,
@@ -134,26 +136,19 @@ and then projecting back down to the target space,
 \end{equation*}
 %
 By construction, the trajectories generated by the Hamiltonian flow 
-explore the level sets of the Hamiltonian function, which shadow the
-probability mass of the joint distribution.  Because these level sets
-can also span large volumes of the joint space, sufficiently-long 
+explore the level sets of the Hamiltonian function.  Because these 
+level sets can also span large volumes of the joint space, sufficiently-long 
 trajectories can yield transitions far away from the initial state of the 
 Markov chain, drastically reducing autocorrelations and producing 
 computationally efficient Monte Carlo estimators.
 
 When the kinetic energy does not depend on position we say that
 the Hamiltonian is \textit{separable}, $H (q, p) = T (p) + V (q)$,  and
-the exact Hamiltonian flow can be generated by the \textit{Hamiltonian operator}, 
-$\hat{H}$,
-%
-\begin{equation*}
-\phi^{H}_{\tau} = e^{\tau \hat{H}},
-\end{equation*}
-%
-where
+the Hamiltonian vector field decouples into a kinetic vector field,
+$\vec{T}$ and potential vector field, $\vec{V}$,
 %
 \begin{align*}
-\hat{H} 
+\vec{H} 
 &= 
 \frac{ \partial H }{ \partial p } \frac{ \partial }{ \partial q}
 - \frac{ \partial H }{ \partial q } \frac{ \partial }{ \partial p}
@@ -163,7 +158,7 @@ where
 - \frac{ \partial V }{ \partial q } \frac{ \partial }{ \partial p}
 \\
 &\equiv
-\quad\, \hat{T} \quad + \quad \hat{V} \quad.
+\quad\, \vec{T} \quad + \quad \vec{V} \quad.
 \end{align*}
 %
 In this paper I consider only separable Hamiltonians, although
@@ -174,10 +169,10 @@ Riemannian Hamiltonian Monte Carlo \cite{GirolamiEtAl:2011}.
 \section{Hamiltonian Monte Carlo in Practice}
 
 The biggest challenge of implementing Hamiltonian Monte Carlo is that the
-Hamiltonian operator is rarely calculable in practice and we must instead resort 
-to approximate integration of the Hamiltonian flow.  \textit{Symplectic integrators}, 
-which yield numerical trajectories that closely track the true trajectories, are  
-of particular importance to any high-performance implementation. 
+exact Hamiltonian flow is rarely calculable in practice and we must instead resort 
+to approximate integration.  \textit{Symplectic integrators}, which yield numerical 
+trajectories that closely track the true trajectories, are of particular importance to 
+any high-performance implementation. 
 
 An especially transparent strategy for constructing symplectic integrators is to split 
 the Hamiltonian into terms with soluble flows which can then be composed together
@@ -189,9 +184,9 @@ the Hamiltonian into terms with soluble flows which can then be composed togethe
 \phi^{T}_{\epsilon} \circ 
 \phi^{V}_{\frac{\epsilon}{2}}
 =
-e^{\frac{\epsilon}{2} \hat{V} } \circ 
-e^{\epsilon \hat{T} } \circ 
-e^{\frac{\epsilon}{2} \hat{V} },
+e^{\frac{\epsilon}{2} \vec{V} } \circ 
+e^{\epsilon \vec{T} } \circ 
+e^{\frac{\epsilon}{2} \vec{V} },
 \end{equation*}
 %
 where $\epsilon$ is a small interval of time known as the \textit{step size}.
@@ -203,38 +198,42 @@ Appealing to the Baker-Campbell-Hausdorff formula, this symmetric composition yi
 \phi^{V}_{\frac{\epsilon}{2}}
 \\
 & \hspace{-12mm} =
-e^{\frac{\epsilon}{2} \hat{V} } \circ 
-e^{\epsilon \hat{T} } \circ 
-e^{\frac{\epsilon}{2} \hat{V} }
+e^{\frac{\epsilon}{2} \vec{V} } \circ 
+e^{\epsilon \vec{T} } \circ 
+e^{\frac{\epsilon}{2} \vec{V} }
 \\
 & \hspace{-12mm} =
-e^{\frac{\epsilon}{2} \hat{V} } \circ 
-\exp \left( \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
-+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] \right)
+e^{\frac{\epsilon}{2} \vec{V} } \circ 
+\exp \left( \epsilon \vec{T} + \frac{\epsilon}{2} \vec{V} 
++ \frac{\epsilon^{2}}{4} \left[ \vec{T}, \vec{V} \right] \right)
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
 & \hspace{-12mm} =
 \exp \left( 
-\frac{\epsilon}{2} \hat{V} + \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
-+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right]
+\frac{\epsilon}{2} \vec{V} + \epsilon \vec{T} + \frac{\epsilon}{2} \vec{V} 
++ \frac{\epsilon^{2}}{4} \left[ \vec{T}, \vec{V} \right]
 \right.
 \\
 & \hspace{0mm} \left.
-+ \frac{1}{2} \left[ \frac{\epsilon}{2} \hat{V}, \epsilon \hat{T} + \frac{\epsilon}{2} \hat{V} 
-+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] \right]
++ \frac{1}{2} \left[ \frac{\epsilon}{2} \vec{V}, \epsilon \vec{T} + \frac{\epsilon}{2} \vec{V} 
++ \frac{\epsilon^{2}}{4} \left[ \vec{T}, \vec{V} \right] \right]
 \right)
+\\
+& \hspace{-9mm}
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
-%& \hspace{-12mm} =
-%\exp \left( 
-%\epsilon \hat{H} 
-%+ \frac{\epsilon^{2}}{4} \left[ \hat{T}, \hat{V} \right] +\frac{\epsilon^{2}}{4} \left[ \hat{V}, \hat{T} \right] 
-%+ \frac{\epsilon^{2}}{8} \left[ \hat{V}, \hat{V} \right]
-%\right)
-%+ \mathcal{O} \! \left( \epsilon^{3} \right)
+& \hspace{-12mm} =
+\exp \left( 
+\epsilon \vec{H} 
++ \frac{\epsilon^{2}}{4} \left[ \vec{T}, \vec{V} \right] +\frac{\epsilon^{2}}{4} \left[ \vec{V}, \vec{T} \right] 
++ \frac{\epsilon^{2}}{8} \left[ \vec{V}, \vec{V} \right]
+\right)
+\\
+& \hspace{-9mm}
++ \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
 & \hspace{-12mm} =
-e^{ \epsilon \hat{H} }
+e^{ \epsilon \vec{H} }
 + \mathcal{O} \! \left( \epsilon^{3} \right).
 \end{align*}
 %
@@ -250,19 +249,19 @@ time, $\tau$,
 \phi^{V}_{\frac{\epsilon}{2}} \right)^{L}
 \\
 &=
-\left( e^{ \epsilon \hat{H} }
+\left( e^{ \epsilon \vec{H} }
 + \mathcal{O} \! \left( \epsilon^{3} \right) \right)^{L}
 \\
 &=
-e^{ \left( L \epsilon \right) \hat{H} }
+e^{ \left( L \epsilon \right) \vec{H} }
 + \left( L \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 &=
-e^{ \tau \hat{H} }
+e^{ \tau \vec{H} }
 + \tau \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 &=
-e^{ \tau \hat{H} }
+e^{ \tau \vec{H} }
 + \mathcal{O} \! \left( \epsilon^{2} \right).
 \end{align*}
 %
@@ -273,8 +272,8 @@ perturbation of the exact Hamiltonian \cite{HairerEtAl:2006, BetancourtEtAl:2014
 Although such symplectic integrators are highly accurate, they still introduce an
 error into the trajectories that can bias the Markov chain and any resulting
 Monte Carlo estimators.  In practice this error is typically compensated with
-the application of a Metropolis acceptance procedure, accepting a point along
-the numerical trajectory only with probability
+the application of a Metropolis correction, accepting a point along the numerical 
+trajectory only with probability
 %
 \begin{equation*}
 a (p, q) = \min \left(1, 
@@ -291,75 +290,91 @@ integrator is compromised, however, then this scalability and generality is lost
 \section{Hamiltonian Monte Carlo With Subsampling}
 
 A common criticism of Hamiltonian Monte Carlo is that in data-intensive applications 
-the application of potential energy operator,
+the evaluation of potential vector field,
 %
 \begin{equation*}
-\hat{V} = - \frac{ \partial V }{ \partial q } \frac{ \partial }{ \partial p},
+\vec{V} = - \frac{ \partial V }{ \partial q } \frac{ \partial }{ \partial p},
 \end{equation*}
 %
 and hence the simulation of numerical trajectories, can become infeasible given the 
 expense of the gradient calculations.  This expense has fueled a variety of modifications 
-of the algorithm aimed at reducing the cost of the potential energy operator, often by 
-any means necessary.
+of the algorithm aimed at reducing the cost of the potential energy, often by any means 
+necessary.
 
 An increasingly popular strategy targets Bayesian applications where the data are 
 independently and identically distributed.  In this case the posterior can be manipulated
-into a product of contributions from each subset of data, and the potential energy
-likewise decomposes into a sum,
+into a product of contributions from each subset of data, 
 %
-$V (q) = \sum_{j = 1}^{J} V_{j} (q)$,
+\begin{equation*}
+\pi \! \left( \theta | \mathbf{y} \right) \propto \pi \! \left( \theta \right) 
+\prod_{j = 1}^{J} \pi \! \left( y_{j} | \theta \right),
+\end{equation*}
 %
-where each $\left\{ V_{j} \right\}$ depends on only a single subset.  This decomposition 
+and the potential energy likewise decomposes into a sum,
+%
+\begin{align*}
+V (q) 
+&= \sum_{j = 1}^{J} V_{j} (q)
+\\
+&= 
+- \sum_{j = 1}^{J} \left( \frac{1}{J} \log \pi \! \left( \theta \right) 
++ \log \pi \! \left( y_{j} | \theta \right) \right),
+\end{align*}
+%
+where each $V_{j}$ depends on only a single subset.  This decomposition 
 suggests algorithms which consider not the entirety of the data and the full potential
 energy, $V$, but rather only a few subsets at a time.
 
-The performance of any such subsampling method depends critically on the details
-of the implementation and the structure of the data itself.  Here I consider the performance 
-of two immediate implementations, one based on subsampling the data in between 
-Hamiltonian trajectories and one based on subsampling the data within a single trajectory.  
-Unfortunately, the performance of both methods leaves much to be desired.
+Using only part of the data to generate a trajectory, however, compromises the
+structure-preserving properties of the symplectic integrator and hence the scalability
+of its accuracy.  Consequently the performance of any such subsampling method 
+depends critically on the details of the implementation and the structure of the data itself.  
+Here I consider the performance of two immediate implementations, one based on 
+subsampling the data in between Hamiltonian trajectories and one based on subsampling 
+the data within a single trajectory.  As expected, the performance of both methods leaves 
+much to be desired.
 
 \subsection{Subsampling Data In Between Trajectories}
 
 Given any subset of the data, we can approximate the potential energy as 
 $V \approx J \, V_{j}$ and then generate trajectories corresponding to the flow of the 
-approximate Hamiltonian, $H_{j} = T + J \, V_{j}$.  In order to avoid parsing the entirely
-of the data, the Metropolis acceptance procedure can be neglected and the 
-corresponding samples left biased.
+approximate Hamiltonian, $H_{j} = T + J \, V_{j}$.  In order to avoid parsing the entirety
+of the data, the Metropolis correction at the end of each trajectory can be neglected and 
+the corresponding samples left biased.
 
 Unlike the numerical trajectories from the full Hamiltonian, these subsampled 
 trajectories are biased away from the exact trajectories regardless of the chosen step size.  
 In particular, the bias of each step,
 %
 \begin{align*}
-e^{\frac{\epsilon}{2} I \hat{V}_{j} } \circ 
-e^{\epsilon \hat{T} } \circ 
-e^{\frac{\epsilon}{2} I \hat{V}_{j} }
+e^{\frac{\epsilon}{2} I \vec{V}_{j} } \circ 
+e^{\epsilon \vec{T} } \circ 
+e^{\frac{\epsilon}{2} I \vec{V}_{j} }
 &=
-e^{ \epsilon \hat{H}_{j} }
+e^{ \epsilon \vec{H}_{j} }
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
 &=
-e^{ \epsilon \hat{H} - \epsilon \widehat{ \Delta V}_{j} }
+e^{ \epsilon \vec{H} - \epsilon \overrightarrow{ \Delta V}_{j} }
 + \mathcal{O} \! \left( \epsilon^{3} \right),
 \end{align*}
 %
 where
 %
 \begin{equation} \label{eqn:between_bias}
-\widehat{ \Delta V_{j} } = 
+\overrightarrow{ \Delta V_{j} } = 
 - \left( \frac{ \partial V }{ \partial q } - J \frac{ \partial V_{j} }{ \partial q } \right)
 \frac{ \partial }{ \partial p },
 \end{equation}
 %
-persists over an entire trajectory,
+persists over the entire trajectory,
 %
 \begin{equation*}
-\left( e^{\frac{\epsilon}{2} I \hat{V}_{j} } \circ 
-e^{\epsilon \hat{T} } \circ 
-e^{\frac{\epsilon}{2} I \hat{V}_{j} } \right)^{L}
+\left( e^{\frac{\epsilon}{2} J \vec{V}_{j} } \circ 
+e^{\epsilon \vec{T} } \circ 
+e^{\frac{\epsilon}{2} J \vec{V}_{j} } \right)^{L}
 =
-e^{ \tau \left( \hat{H} - \widehat{ \Delta V}_{j} \right) }
+e^{ \tau \left( \vec{H} - \overrightarrow{ \Delta V}_{j} \right) }
 + \mathcal{O} \! \left( \epsilon^{2} \right).
 \end{equation*}
 %
@@ -370,7 +385,7 @@ Consequently the resulting trajectory introduces an irreducible bias into
 the algorithm, similar in nature to the asymptotic bias seen in subsampled
 Langevin Monte Carlo \cite{TehEtAl:2014, VollmerEtAl:2015}, which then 
 induces either a vanishing Metropolis acceptance probability 
-or highly-biased expectations if the Metropolis procedure is ignored outright 
+or highly-biased expectations if the Metropolis correction is neglected 
 (Figure \ref{fig:subsampled_gradients}).  
 
 Unfortunately, the only way to decrease the dependency on redundant data
@@ -382,7 +397,7 @@ any computational benefits.
 %
 \subfigure[]{
 %\begin{tikzpicture}[scale=0.20, thick, show background rectangle]
-\begin{tikzpicture}[scale=0.20, thick]
+\begin{tikzpicture}[scale=0.22, thick]
   
   \draw [light, thick] plot [smooth, tension=1.1] coordinates {(0,5) (10, 10) (21, 8) (25, 8)}
   node[right] { Stochastic };
@@ -403,7 +418,7 @@ any computational benefits.
 }
 \subfigure[]{
 %\begin{tikzpicture}[scale=0.20, thick, show background rectangle]
-\begin{tikzpicture}[scale=0.20, thick]
+\begin{tikzpicture}[scale=0.22, thick]
 
   \draw [light, thick] plot [smooth, tension=0.8] coordinates {(0,5) (2, 6.75) (4, 8) (6, 8.95) 
   (8, 9.6) (10, 10) (12, 10.7) (14, 13) (16, 17)}
@@ -439,19 +454,19 @@ Consider, for example, a simple application where we target a one-dimensional
 posterior distribution,
 %
 \begin{equation} \label{posterior}
-p \! \left( \mu | \vec{x} \right) \propto p \! \left( \vec{x} | \mu \right) p \! \left( \mu \right),
+\pi \! \left( \mu | \mathbf{y} \right) \propto \pi \! \left( \mathbf{y} | \mu \right) \pi \! \left( \mu \right),
 \end{equation}
 %
 with the likelihood
 %
 \begin{equation*}
-p \! \left( \vec{x} | \mu \right) = \prod_{n = 1}^{N} \mathcal{N} \! \left( x_{n} | \mu, \sigma^{2} \right)
+\pi \! \left( \mathbf{y} | \mu \right) = \prod_{n = 1}^{N} \mathcal{N} \! \left( y_{n} | \mu, \sigma^{2} \right)
 \end{equation*}
 %
 and prior
 %
 \begin{equation*}
-p \! \left( \mu \right) = \mathcal{N} \! \left( \mu | m, s^{2} \right). 
+\pi \! \left( \mu \right) = \mathcal{N} \! \left( \mu | m, s^{2} \right). 
 \end{equation*}
 %
 Separating the data into $J = N / B$ batches of size $B$ and decomposing the
@@ -499,26 +514,26 @@ trajectories provide a reasonable emulation of the true trajectories.}
 \end{figure}
 
 As noted above, geometric considerations suggest that this bias should grow with the 
-dimensionality of the target distribution.  To see this, consider running Hamiltonian
-Monte Carlo, implemented with the same second-order symplectic integrator using
-a step size, $\epsilon$, and a random integration time for each trajectory, 
-$\tau \sim U \! \left(0, 2 \pi \right)$, on the multivariate generalization of \eqref{posterior},
+dimensionality of the target distribution.  To see this, consider running subsampled
+Hamiltonian Monte Carlo on the multivariate generalization of \eqref{posterior},
 %
 \begin{equation} \label{multivariate_posterior}
-\prod_{d = 1}^{D} p \! \left( \mu_{d} | \vec{x}_{d} \right),
+\prod_{d = 1}^{D} \pi \! \left( \mu_{d} | \mathbf{y}_{d} \right),
 \end{equation}
 %
-where the true $\mu_{d}$ are sampled from $\mu_{d} \sim \mathcal{N} \! \left( 0, 1 \right)$.
-As a surrogate for the accuracy of the resulting samples I will use the average
-Metropolis acceptance probability using the full data.
+where the true $\mu_{d}$ are sampled from $\mu_{d} \sim \mathcal{N} \! \left( 0, 1 \right)$
+and trajectories are generated using a subsampled integrator with step size, $\epsilon$, a 
+random integration time $\tau \sim U \! \left(0, 2 \pi \right)$, and no Metropolis
+correction.  As a surrogate for the accuracy of the resulting samples I will use the 
+average Metropolis acceptance probability of each new state using the full data.
 
 When the full data are used in this model, the step size of the symplectic integrator can be 
 tuned to maintain constant accuracy as the dimensionality of the target distribution, $D$, increases.
 The bias induced by subsampling between trajectories, however, is invariant to the
 step size of the integrator and rapidly increases with the dimension of the target distribution.
 Here the data were partitioned into $J = 25$ batches of $B = 20$ data, the subsample
-used for each trajectories randomly selected from the first five batches, and the step size 
-of the subsampled trajectories reduced by $N / (J \cdot B) = 5$ to equalize the computational
+used for each trajectory is randomly selected from the first five batches, and the step size 
+of the subsampled trajectory is reduced by $N / (J \cdot B) = 5$ to equalize the computational
 cost with full data trajectories (Figure \ref{fig:multivariate}).
 
 \begin{figure}
@@ -526,7 +541,7 @@ cost with full data trajectories (Figure \ref{fig:multivariate}).
 \includegraphics[width=3.25in]{multivariate.eps}
 \caption{When the full data are used, high accuracy of Hamiltonian Monte Carlo samples, 
 here represented by the average Metropolis acceptance probability using the full data, can 
-be maintained even as the dimensionally of the target distribution grows.  The biases induced 
+be maintained even as the dimensional of the target distribution grows.  The biases induced 
 when the data are subsampled, however, cannot be controlled and quickly devastate the 
 accuracy of the algorithm.  Here the step size of the subsampled algorithms has been decreased
 relative to the full data algorithm in order to equalize the computational cost -- even in this
@@ -551,33 +566,40 @@ integrator are given by
 \begin{align*}
 \phi^{H_{j}}_{\epsilon} \circ \phi^{H_{i}}_{\epsilon}
 &=
-e^{ \epsilon \hat{H} - \epsilon  \widehat{ \Delta V}_{j} } 
-\circ e^{ \epsilon \hat{H} - \epsilon  \widehat{ \Delta V}_{i} }
+e^{ \epsilon \vec{H} - \epsilon  \overrightarrow{ \Delta V}_{j} } 
+\circ e^{ \epsilon \vec{H} - \epsilon  \overrightarrow{ \Delta V}_{i} }
 + \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
 &=
 \exp \! \left( 
-2 \epsilon \hat{H} - \epsilon \left(  \widehat{ \Delta V}_{i} +  \widehat{ \Delta V}_{j} \right)
+2 \epsilon \vec{H} - \epsilon \left(  \overrightarrow{ \Delta V}_{i} +  \overrightarrow{ \Delta V}_{j} \right)
 \right.
 \\
 & \hspace{10mm} \left.
-+ \frac{\epsilon^{2}}{2} \left[ \hat{H} -  \widehat{ \Delta V}_{j}, \hat{H} - \widehat{ \Delta V}_{i} \right]
++ \frac{\epsilon^{2}}{2} \left[ \vec{H} -  \overrightarrow{ \Delta V}_{j}, \vec{H} - \overrightarrow{ \Delta V}_{i} \right]
 \right)
-+ \mathcal{O} \! \left( \epsilon^{3} \right)
 \\
+& \hspace{3mm}
++ \mathcal{O} \! \left( \epsilon^{3} \right)
+\end{align*}
+%
+\begin{align*}
+\phi^{H_{j}}_{\epsilon} \circ \phi^{H_{i}}_{\epsilon}
 &=
 \exp \! \left( 
-2 \epsilon \hat{H} - \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} \right)
+2 \epsilon \vec{H} - \epsilon \left( \overrightarrow{ \Delta V}_{i} + \overrightarrow{ \Delta V}_{j} \right)
 \right.
 \\
 & \hspace{10mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
-- \left[ \hat{H}, \hat{V}_{\setminus i} \right]
-- \left[ \hat{V}_{\setminus j}, \hat{H} \right] \right) \right)
+- \left[ \vec{H}, \vec{V}_{\setminus i} \right]
+- \left[ \vec{V}_{\setminus j}, \vec{H} \right] \right) \right)
+\\
+& \hspace{3mm}
 + \mathcal{O} \! \left( \epsilon^{3} \right),
 \end{align*}
 %
-where we have used the fact that the $\{ \widehat{ \Delta V}_{j} \}$ commute
+where we have used the fact that the vector fields $\{ \overrightarrow{ \Delta V}_{j} \}$ commute
 with each other.  Similarly, the first three steps are given by
 %
 \begin{align*}
@@ -586,18 +608,18 @@ with each other.  Similarly, the first three steps are given by
 \\
 & \hspace{-15mm} =
 \exp \! \left( 
-3 \epsilon \hat{H} 
-- \epsilon \left( \widehat{ \Delta V}_{i} +  \widehat{ \Delta V}_{j} +  \widehat{ \Delta V}_{k} \right)
+3 \epsilon \vec{H} 
+- \epsilon \left( \overrightarrow{ \Delta V}_{i} +  \overrightarrow{ \Delta V}_{j} +  \overrightarrow{ \Delta V}_{k} \right)
 \right.
 \\
 & \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
-- \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
-- \left[ \widehat{ \Delta V}_{j}, \hat{H} \right] \right) \right.
+- \left[ \vec{H}, \overrightarrow{ \Delta V}_{i} \right]
+- \left[ \overrightarrow{ \Delta V}_{j}, \vec{H} \right] \right) \right.
 \\
 & \hspace{-8mm} \left.
 + \frac{\epsilon^{2}}{2} \left(
-\left[ \hat{H} - \widehat{ \Delta V}_{k}, 2 \hat{H} - \widehat{ \Delta V}_{i} - \widehat{ \Delta V}_{j} \right]
+\left[ \vec{H} - \overrightarrow{ \Delta V}_{k}, 2 \vec{H} - \overrightarrow{ \Delta V}_{i} - \overrightarrow{ \Delta V}_{j} \right]
 \right)
 \right)
 \\
@@ -605,33 +627,33 @@ with each other.  Similarly, the first three steps are given by
 \\
 %& \hspace{-15mm} =
 %\exp \! \left( 
-%3 \epsilon \hat{H} 
-%- \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} + \widehat{ \Delta V}_{k} \right)
+%3 \epsilon \vec{H} 
+%- \epsilon \left( \overrightarrow{ \Delta V}_{i} + \overrightarrow{ \Delta V}_{j} + \overrightarrow{ \Delta V}_{k} \right)
 %\right.
 %\\
 %& \hspace{-8mm} \left.
 %+ \frac{\epsilon^{2}}{2} \left(
-%- \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
-%- \left[ \widehat{ \Delta V}_{j}, \hat{H} \right] \right) \right.
+%- \left[ \vec{H}, \overrightarrow{ \Delta V}_{i} \right]
+%- \left[ \overrightarrow{ \Delta V}_{j}, \vec{H} \right] \right) \right.
 %\\
 %& \hspace{-8mm} \left.
 %+ \frac{\epsilon^{2}}{2} \left(
-%- \left[ \hat{H}, \widehat{ \Delta V}_{i} \right]
-%- \left[ \hat{H}, \widehat{ \Delta V}_{j} \right]
-%- 2 \left[ \widehat{ \Delta V}_{k}, \hat{H} \right] \right) \right)
+%- \left[ \vec{H}, \overrightarrow{ \Delta V}_{i} \right]
+%- \left[ \vec{H}, \overrightarrow{ \Delta V}_{j} \right]
+%- 2 \left[ \overrightarrow{ \Delta V}_{k}, \vec{H} \right] \right) \right)
 %\\
 %& \hspace{-8mm}
 %+ \mathcal{O} \! \left( \epsilon^{3} \right)
 %\\
 & \hspace{-15mm} =
 \exp \! \left( 
-3 \epsilon \hat{H} 
-- \epsilon \left( \widehat{ \Delta V}_{i} + \widehat{ \Delta V}_{j} + \widehat{ \Delta V}_{k} \right)
+3 \epsilon \vec{H} 
+- \epsilon \left( \overrightarrow{ \Delta V}_{i} + \overrightarrow{ \Delta V}_{j} + \overrightarrow{ \Delta V}_{k} \right)
 \right.
 \\
 & \hspace{-8mm} \left.
-- \epsilon^{2} \left( \left[ \hat{H}, \widehat{ \Delta V}_{i} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{k} \right] \right)
+- \epsilon^{2} \left( \left[ \vec{H}, \overrightarrow{ \Delta V}_{i} \right] 
+- \left[ \vec{H}, \overrightarrow{ \Delta V}_{k} \right] \right)
 \right) + \mathcal{O} \! \left( \epsilon^{3} \right),
 \end{align*}
 %
@@ -643,47 +665,47 @@ an entire trajectory becomes
 & \\
 & \hspace{-10mm} =
 \exp \! \left( 
-\left( L \epsilon \right) \hat{H} 
-- \left( L \epsilon \right) \frac{1}{L} \sum_{l = 1}^{L}  \widehat{ \Delta V}_{j_{l}}
+\left( L \epsilon \right) \vec{H} 
+- \left( L \epsilon \right) \frac{1}{L} \sum_{l = 1}^{L}  \overrightarrow{ \Delta V}_{j_{l}}
 \right.
 \\
 & \hspace{2mm} \left.
 + \left( L \epsilon \right) \epsilon 
-\left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{l}} \right] \right) 
+\left( \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{1}} \right] 
+- \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{l}} \right] \right) 
 \right)
 \\
 & \hspace{-7mm}
 + \left(L \epsilon \right) \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 & \hspace{-10mm} =
-\exp \! \left( \tau \hat{H} - \tau \frac{1}{L} \sum_{l = 1}^{L} \widehat{ \Delta V}_{j_{l}}
+\exp \! \left( \tau \vec{H} - \tau \frac{1}{L} \sum_{l = 1}^{L} \overrightarrow{ \Delta V}_{j_{l}}
 \right.
 \\
 & \hspace{2mm} \left.
 + \tau \epsilon 
-\left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{L}} \right] \right)
+\left( \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{1}} \right] 
+- \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{L}} \right] \right)
 \right)
 + \mathcal{O} \! \left( \epsilon^{2} \right)
 \\
 & \hspace{-10mm} =
-\exp \! \left( \tau \hat{H} + \tau B_{1} + \tau B_{2} \right)
+\exp \! \left( \tau \vec{H} + \tau B_{1} + \tau B_{2} \right)
 + \mathcal{O} \! \left( \epsilon^{2} \right),
 \end{align*}
 %
 where
 %
 \begin{equation*}
-B_{1} = - \frac{1}{L} \sum_{l = 1}^{L} \widehat{ \Delta V}_{j_{l}}
+B_{1} = - \frac{1}{L} \sum_{l = 1}^{L} \overrightarrow{ \Delta V}_{j_{l}}
 \end{equation*}
 %
 and
 %
 \begin{equation*}
 B_{2} = \epsilon 
-\left( \left[ \hat{H}, \widehat{ \Delta V}_{j_{1}} \right] 
-- \left[ \hat{H}, \widehat{ \Delta V}_{j_{L}} \right] \right).
+\left( \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{1}} \right] 
+- \left[ \vec{H}, \overrightarrow{ \Delta V}_{j_{L}} \right] \right).
 \end{equation*}
 %
 Once again, subsampling the data introduces bias into the numerical trajectories.
@@ -693,12 +715,12 @@ stochastic trajectory with an update from the initial subsample such that $j_{L}
 the first source of bias, $B_{1}$, is not so easily remedied.  Expanding,
 %
 \begin{align*}
-\frac{1}{L} \sum_{l = 1}^{L}  \widehat{ \Delta V}_{j_{l}}
+\frac{1}{L} \sum_{l = 1}^{L}  \overrightarrow{ \Delta V}_{j_{l}}
 &=
-\frac{1}{L} \sum_{l = 1}^{L} \left( \hat{V} - J \, \hat{V}_{j_{l}} \right)
+\frac{1}{L} \sum_{l = 1}^{L} \left( \vec{V} - J \, \vec{V}_{j_{l}} \right)
 \\
 &=
-\hat{V} - \frac{J}{L} \sum_{n = 1}^{L} \hat{V}_{j_{l}}
+\vec{V} - \frac{J}{L} \sum_{n = 1}^{L} \vec{V}_{j_{l}}
 \\
 &=
 - \left( \frac{ \partial V }{ \partial q }  - \frac{J}{L} \sum_{l = 1}^{L} \frac{ \partial V_{j} }{ \partial q }
@@ -727,15 +749,14 @@ any computational savings and it seems rather at odd with the original stochasti
 subsampling motivation. 
 
 Indeed, this symmetric composition is not stochastic at all and actually corresponds 
-to a rather elaborate symplectic integrator with an effective step size of $J \epsilon$, 
-where the potential energy from each subsample generates its own flow, equivalent
-to the integrator in Split Hamiltonian Monte Carlo \cite{ShahbabaEtAl:2014}.  Removing 
-intermediate steps from this symmetric, stochastic trajectory 
-(Figure \ref{fig:symmetric_stochastic}a) reveals the level set of the corresponding
-modified Hamiltonian (Figure \ref{fig:symmetric_stochastic}b).  Because this
-symmetric composition integrates the full Hamiltonian system, the error is 
-once again controllable and vanishes as the step size is decreased
-(Figure \ref{fig:symmetric_stochastic}c).
+to a rather elaborate symplectic integrator where the potential energy from each subsample 
+generates its own flow, equivalent to the integrator in Split Hamiltonian Monte Carlo 
+\cite{ShahbabaEtAl:2014} with the larger step size $J \epsilon$.  Removing intermediate 
+steps from this symmetric, stochastic trajectory (Figure \ref{fig:symmetric_stochastic}a) 
+reveals the level set of the corresponding modified Hamiltonian 
+(Figure \ref{fig:symmetric_stochastic}b).  Because this symmetric composition integrates 
+the full Hamiltonian system, the error is once again controllable and vanishes as the step 
+size is decreased (Figure \ref{fig:symmetric_stochastic}c).
 
 \begin{figure}
 \centering
@@ -775,12 +796,12 @@ to the target model.}
 
 The efficacy of Markov Chain Monte Carlo for complex, high-dimensional 
 target distributions depends on the ability of the sampler to explore the intricate 
-and often meandering neighborhoods on which probability is distributed.
+and often meandering neighborhoods on which the probability is distributed.
 Symplectic integrators admit a structure-preserving implementation of
 Hamiltonian Monte Carlo that is amazingly robust to this complexity
 and capable of efficiently exploring the most complex target distributions.
 Subsampled data, however, does not in general have enough information 
-to enable such efficient exploration; this lack of information manifests as
+to enable such efficient exploration.  This lack of information manifests as
 an irreducible bias that devastates the scalable performance of Hamiltonian 
 Monte Carlo.
 
@@ -798,11 +819,12 @@ we must focus our efforts not on modifying Hamiltonian Monte Carlo but rather
 on improving its implementation with, for example, better memory management 
 and efficiently parallelized gradient calculations.
 
-%\section*{Acknowledgements}
+\section*{Acknowledgements}
 
-%It is my pleasure to thank Simon Byrne, Mark Girolami, Matt Hoffman, 
-%Matt Johnson, and Sam Livingstone for thoughtful discussion and helpful 
-%comments.  I am supported under EPSRC grant EP/J016934/1
+It is my pleasure to thank Simon Byrne, Mark Girolami, Matt Hoffman, 
+Matt Johnson, and Sam Livingstone for thoughtful discussion and helpful 
+comments, as well as three anonymous reviewers for constructive
+assessments.  I am supported under EPSRC grant EP/J016934/1.
 
 \bibliography{stochastic_integrators}
 \bibliographystyle{icml2015}
