@@ -10,7 +10,7 @@ unset border
 set lmargin 0
 set rmargin 1
 set bmargin 0
-set tmargin 5
+set tmargin 4
 
 set label "Full Data (J = 1, B = 500)" at screen 0.5, screen 0.9 center
 
@@ -62,7 +62,7 @@ unset border
 set lmargin 0
 set rmargin 1
 set bmargin 0
-set tmargin 5
+set tmargin 4
 
 set label "Small Subset (J = 50, B = 10)" at screen 0.5, screen 0.9 center
 
@@ -121,7 +121,7 @@ unset border
 set lmargin 0
 set rmargin 1
 set bmargin 0
-set tmargin 5
+set tmargin 4
 
 set label "Large Subset (J = 2, B = 250)" at screen 0.5, screen 0.9 center
 

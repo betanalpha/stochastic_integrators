@@ -497,18 +497,17 @@ approximation to the exact trajectory (Figure \ref{fig:level_sets}c)
 
 \begin{figure}
 \centering
-\subfigure[]{\includegraphics[width=1.75in]{full_level_set.eps}}
-\subfigure[]{\includegraphics[width=1.75in]{small_batch_level_set.eps}}
-\subfigure[]{\includegraphics[width=1.75in]{large_batch_level_set.eps}}
-\caption{Even for the one-dimensional target distribution \eqref{posterior}, subsampling
-data in between Hamiltonian trajectories introduces significant pathologies.
-(a) When the full data are used, numerical Hamiltonian trajectories (dashed line) 
-closely track the exact Hamiltonian trajectories (solid line).  Subsampling of the
+\subfigure[]{\includegraphics[width=1.665in]{full_level_set.eps}}
+\subfigure[]{\includegraphics[width=1.665in]{small_batch_level_set.eps}}
+\subfigure[]{\includegraphics[width=1.665in]{large_batch_level_set.eps}}
+\caption{Even for the simple posterior \eqref{posterior}, subsampling
+data in between trajectories introduces significant pathologies.
+(a) When the full data are used, numerical trajectories (dashed line) 
+closely track the exact trajectories (solid line).  Subsampling of the
 data introduces a bias in both the exact trajectories and corresponding
 numerical trajectories.  (b) If the size of each subsample is small then this bias 
-is large, offsetting both the exact and numerical stochastic trajectories. 
-(c) Only when the size of the subsamples approaches the size of the full data, 
-and any computational benefits from subsampling wane, do the stochastic 
+is large. (c) Only when the size of the subsamples approaches the size of the 
+full data, and any computational benefits from subsampling wane, do the stochastic 
 trajectories provide a reasonable emulation of the true trajectories.}
 \label{fig:level_sets}
 \end{figure}
